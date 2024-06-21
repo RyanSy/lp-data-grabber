@@ -1,16 +1,10 @@
-/**
- * This is an example of a basic node.js script that performs
- * the Client Credentials oAuth2 flow to authenticate against
- * the Spotify Accounts.
- *
- * For more information, read
- * https://developer.spotify.com/documentation/web-api/tutorials/client-credentials-flow
- */
-
 require('dotenv').config();
 const client_id = process.env.CLIENT_ID; 
 const client_secret = process.env.CLIENT_SECRET;
 
+/**
+ * Get access token
+ */
 async function getToken() {
   const response = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
@@ -26,8 +20,11 @@ async function getToken() {
   return await response.json();
 }
 
-async function getTrackInfo(access_token) {
-  const response = await fetch("https://api.spotify.com/v1/tracks/4cOdK2wGLETKBW3PvgPWqT", {
+/**
+ * Get new releases
+ */
+async function getNewReleases(access_token) {
+  const response = await fetch("https://api.spotify.com/v1/browse/new-releases?limit=50", {
     method: 'GET',
     headers: { 'Authorization': 'Bearer ' + access_token },
   });
@@ -36,7 +33,13 @@ async function getTrackInfo(access_token) {
 }
 
 getToken().then(response => {
-  getTrackInfo(response.access_token).then(profile => {
-    console.log(profile)
-  })
+  getNewReleases(response.access_token).then(data => {
+    let newReleases = data.albums.items;
+
+    for (let i = 0; i < newReleases.length; i++) {
+        // use newReleases[i].href to fetch info on each album
+    }
+
+    console.log(newReleases);
+  });
 });
