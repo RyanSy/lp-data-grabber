@@ -55,8 +55,9 @@ getToken().then(response => {
                 const image = album.images[0].url;
                 const upc = album.external_ids.upc;
                 const albumType = album.album_type;
+
                 const product = {
-                    'Handle': '',
+                    'Handle': title,
                     'Title': title,
                     'Body (HTML)': '',
                     'Vendor': 'Village Record Club',
@@ -113,7 +114,8 @@ getToken().then(response => {
         }
 
         // write to csv - figure out other location and unique file names later
-        writeCSV('./products.csv', products);
+        const date = new Date().toISOString();
+        writeCSV(`./csv/new-releases-${date}.csv`, products);
     }).catch(err => console.error(err));
 
 }).catch(err => console.error(err));
