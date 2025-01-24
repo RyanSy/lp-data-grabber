@@ -35,9 +35,9 @@ async function getToken() {
 /**
  * Searches the Spotify catalog for a specific album.
  * 
- * @param {string} access_token - Access token obtained from getToken function.
+ * @param {string} access_token - Access token obtained from the getToken function.
  * @param {string} query - Album to search for.
- * @returns JSON objecr containing album data.
+ * @returns JSON object containing album data.
  */
 async function searchForAlbum(access_token, query) {
     console.log('Searching for album...');
@@ -56,34 +56,11 @@ async function searchForAlbum(access_token, query) {
 
 
 /**
- * Gets detailed Spotify catalog information for a specific album.
- * 
- * @param {string} access_token - Access token obtained from getToken function.
- * @param {string} href - Album link obtained from searchForAlbum function.
- * @returns JSON objecr containing detailed album data.
- */
-async function getAlbum(access_token, href) {
-    console.log('Getting detailed album data...');
-
-    const response = await fetch(href, {
-        method: 'GET',
-        headers: { 'Authorization': 'Bearer ' + access_token },
-    });
-
-    console.log('Detailed album data successfully retrieved.');
-    // console.log(response);
-
-    return await response.json();
-}
-
-
-
-/**
  * Gets detailed Spotify catalog information for a specific artist.
  * 
- * @param {string} access_token - Access token obtained from getToken function.
- * @param {string} href - artist link obtained from getAlbum function.
- * @returns JSON objecr containing detailed artist data.
+ * @param {string} access_token - Access token obtained from the getToken function.
+ * @param {string} href - Link to full artist details obtained from the getAlbum function.
+ * @returns JSON object containing detailed artist data.
  */
 async function getArtist(access_token, href) {
     console.log('Getting artist data...');
@@ -113,25 +90,19 @@ async function main(query) {
         })
         .catch(err => console.error('Error getting access token:\n', error));
 
-    const albumHref = await searchForAlbum(token, query).then(response => {
+    const album = await searchForAlbum(token, query).then(response => {
             // console.log(response);
-            return response.albums.items[0].href
+            return response.albums.items[0];
         })
         .catch(err => console.error('Error searching for album:\n', err));
-
-    const album = await getAlbum(token, albumHref).then(response => {
-            // console.log(response);
-            return response;
-        })
-        .catch(err => console.error('Error getting detailed album data:\n', err));
 
     const artistHref = album.artists[0].href;
 
     const artist = await getArtist(token, artistHref).then(response => {
-        // console.log(response);
-        return response;
-    })
-    .catch(err => console.error('Error getting detailed album data:\n', err));
+            // console.log(response);
+            return response;
+        })
+        .catch(err => console.error('Error getting detailed album data:\n', err));
 
     const artistName = album.artists[0].name;
     const albumName = album.name;
@@ -139,7 +110,6 @@ async function main(query) {
     const albumType = album.album_type;
     const image = album.images[0].url;
     const genres = artist.genres.join(', ');
-    const upc = album.external_ids.upc;
     const releaseDate = album.release_date;
     const label = album.label;
 
@@ -158,7 +128,7 @@ async function main(query) {
         'Option2 Value': '',
         'Option3 Name': '',
         'Option3 Value': '',
-        'Variant SKU': upc,
+        'Variant SKU': '',
         'Variant Grams': '',
         'Variant Inventory Tracker': '',
         'Variant Inventory Qty': '',
@@ -200,9 +170,13 @@ async function main(query) {
     const products = [product];
 
     // write to csv - figure out other location and unique file names later
-    console.log('Writing to .csv file...');
-    const date = new Date().toISOString();
-    writeCSV(`./csv/albums-${date}.csv`, products);
+    try {
+        console.log('Writing to .csv file...');
+        const date = new Date().toISOString();
+        writeCSV(`./csv/albums-${date}.csv`, products);
+    } catch(err) {
+        console.error('Error writing to .csv file:\n', err);
+    }
 }
 
 
