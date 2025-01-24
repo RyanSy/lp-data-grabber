@@ -14,12 +14,10 @@ async function getToken() {
         }),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization:
-                'Basic ' +
-                Buffer.from(client_id + ':' + client_secret).toString('base64'),
+            'Authorization': 'Basic ' + Buffer.from(client_id + ':' + client_secret).toString('base64'),
         },
     });
-
+    
     return await response.json();
 }
 
@@ -28,20 +26,30 @@ async function getToken() {
  */
 async function search(access_token, item) {
     const query = item;
-    const response = await fetch(`https://api.spotify.com/v1/search?&q=illmatic&type=album`, {
+    const response = await fetch(`https://api.spotify.com/v1/search?&q=${query}&type=album`, {
         method: 'GET',
         headers: { 'Authorization': 'Bearer ' + access_token },
     });
 
-    return await response.json();
+        return await response.json();
 }
 
 getToken().then(response => {
     const token = response.access_token;
 
     //  get new releases
-    search(token, 'illmatic').then(async data => {
-        console.log(data.albums.items[0]);
+    search(token, 'mf doom - operation doomsday').then(async data => {
+        const album = data.albums.items[0];
+        const image = album.images[0].url;
+        const name = album.name;
+        const artist = album.artists[0].name;
+
+        // console.log('image:', image)
+        // console.log('name:', name)
+        // console.log('artist:', artist)
+
+        // * code below is copied from getNewReleases.js - modify to work here:
+
         // const products = [];
 
         // //  for each new release, format according to Shopify csv template and save to array
@@ -119,6 +127,6 @@ getToken().then(response => {
         // // write to csv - figure out other location and unique file names later
         // const date = new Date().toISOString();
         // writeCSV(`./csv/new-releases-${date}.csv`, products);
-    }).catch(err => console.error(err));
+    }).catch(err => console.error('Error searching:', err));
 
-}).catch(err => console.error(err));
+}).catch(err => console.error('Error getting acccess token:', err));
