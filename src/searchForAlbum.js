@@ -88,15 +88,15 @@ async function main(query) {
             // console.log(response); 
             return response.access_token; 
         })
-        .catch(err => console.error('Error getting access token:\n', error));
+        .catch(err => console.error('Error getting access token:\n', err));
 
     const album = await searchForAlbum(token, query).then(response => {
             // console.log(response);
             return response.albums.items[0];
         })
         .catch(err => console.error('Error searching for album:\n', err));
-
-    const artistHref = album.artists[0].href;
+    
+        const artistHref = album.artists[0].href;
 
     const artist = await getArtist(token, artistHref).then(response => {
             // console.log(response);
