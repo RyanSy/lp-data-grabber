@@ -1,4 +1,4 @@
-const product = {
+export const product = {
     'Handle': '',
     'Title': '',
     'Body (HTML)': '',
@@ -49,7 +49,5 @@ const product = {
     'Cost per item': '',
     'Price / International': '',
     'Compare At Price / International': '',
-    'Status': 'Active',
+    'Status': 'Active'
 };
-
-module.exports.product = product;

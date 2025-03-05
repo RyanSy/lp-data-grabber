@@ -1,7 +1,7 @@
 import 'dotenv/config';
-
 const client_id = process.env.CLIENT_ID; 
 const client_secret = process.env.CLIENT_SECRET;
+
 
 
 /**
@@ -33,6 +33,7 @@ export async function getToken() {
 }
 
 
+
 /**
  * Gets new releases from the Spotify catalog.
  * 
@@ -56,6 +57,7 @@ export async function getNewReleases(access_token) {
 }
 
 
+
 /**
  * Searches the Spotify catalog for a specific album.
  * 
@@ -76,6 +78,7 @@ export async function searchForAlbum(access_token, query) {
 
     return await response.json();
 }
+
 
 
 /**

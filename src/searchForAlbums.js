@@ -1,38 +1,31 @@
-import writeCSV from 'write-csv';
-import { getToken, getNewReleases } from './modules/spotify.js';
-// import { product } from './modules/product.js';
+import { getToken, searchForAlbum, getArtist } from "./modules/spotify.js";
+import writeCSV from "write-csv";
+import { wantlist } from "./lists/wantlist.js";
 const products = [];
 const date = new Date().toISOString();
 
 // Get Spotify access token.
 const token = await getToken().then(data => data.access_token);
 
-// Get new releases from Spotify API.
-const newReleases = await getNewReleases(token).then(data => data.albums.items);
+// Get album data.
+for (let i = 0; i < wantlist.length; i++) {
+    const album = await searchForAlbum(token, wantlist[i]).then(data => data.albums.items[0]);
 
-// For each new release, add data to Shopify product template and save to products array.
-for (let i = 0; i < newReleases.length; i++) {
-  if (newReleases[i].album_type !== 'single') {
-    const response = await fetch(newReleases[i].href, {
-        method: 'GET',
-        headers: { 'Authorization': 'Bearer ' + token },
-    });
-    const album = await response.json();
-    const artist = album.artists[0].name;
-    const title = `${album.artists[0].name} - ${album.name}`;
-    const genres = album.genres;
-    const image = album.images[0].url;
-    const upc = album.external_ids.upc;
+    // Get artist data.
+    const artistHref = album.artists[0].href;
+    const artist = await getArtist(token, artistHref).then(data => data);
+
+    // Format product to save to Shopify csv template.
+    const artistName = album.artists[0].name;
+    const albumName = album.name;
+    const title = `${artistName} - ${albumName}`;
     const albumType = album.album_type;
+    const image = album.images[0].url;
+    const genres = artist.genres.join(', ');
 
-    // code below is pushing the last entry to the array only
-    // let newRelease = product;
-    // newRelease['Title'] = title;
-    // newRelease['Tags'] = genres;
-    // newRelease['Image Src'] = image;
-    // newRelease['Variant SKU'] = upc;
-    // newRelease['Type'] = albumType;
-    // products.push(newRelease);
+    // Fix below when possible.
+    // const releaseDate = album.release_date;
+    // const label = album.label;
 
     const product = {
         'Handle': title,
@@ -41,7 +34,7 @@ for (let i = 0; i < newReleases.length; i++) {
         'Vendor': 'Village Record Club',
         'Product Category': 'Media > Music & Sound Recordings > Records & LPs',
         'Type': albumType,
-        'Tags': `${artist}, ${genres}`,
+        'Tags': `${artistName}, ${genres}`,
         'Published': '',
         'Option1 Name': '',
         'Option1 Value': '',
@@ -49,7 +42,7 @@ for (let i = 0; i < newReleases.length; i++) {
         'Option2 Value': '',
         'Option3 Name': '',
         'Option3 Value': '',
-        'Variant SKU': upc,
+        'Variant SKU': '',
         'Variant Grams': '',
         'Variant Inventory Tracker': '',
         'Variant Inventory Qty': '',
@@ -62,11 +55,11 @@ for (let i = 0; i < newReleases.length; i++) {
         'Variant Barcode': '',
         'Image Src': image,
         'Image Position': '',
-        'Image Alt Text': '',
+        'Image Alt Text': `${title}`,
         'Gift Card': '',
-        'SEO Title': '',
-        'SEO Description': '',
-        'Google Shopping / Google Product Category': '',
+        'SEO Title': `${title} | Village Record Club`,
+        'SEO Description': `${albumName} by ${artistName}`,
+        'Google Shopping / Google Product Category': '543523',
         'Google Shopping / Gender': '',
         'Google Shopping / Age Group': '',
         'Google Shopping / MPN': '',
@@ -87,14 +80,28 @@ for (let i = 0; i < newReleases.length; i++) {
         'Compare At Price / International': '',
         'Status': 'Active',
     };
+
     products.push(product);
-  }
 }
 
 // Write products to csv file.
 try {
-  console.log('Writing to .csv file...');
-  writeCSV(`./src/csv/new-releases-${date}.csv`, products);
+    console.log('Writing to .csv file...');
+    writeCSV(`./src/csv/albums-${date}.csv`, products);
 } catch(err) {
-  console.error('Error writing to .csv file:\n', err);
+    console.error('Error writing to .csv file:\n', err);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    

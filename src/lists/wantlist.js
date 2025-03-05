@@ -1,0 +1,1 @@
+export const wantlist = ['midnight mauarauders', 'low end theory', 'daily operation gang starr'];
