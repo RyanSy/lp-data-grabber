@@ -66,15 +66,21 @@ export async function getNewReleases(access_token) {
  * @returns JSON object containing album data.
  */
 export async function searchForAlbum(access_token, query) {
-    console.log('Searching for album...');
+    console.log(`Searching for ${query}...`);
 
     const response = await fetch(`https://api.spotify.com/v1/search?&q=${query}&type=album`, {
         method: 'GET',
         headers: { 'Authorization': 'Bearer ' + access_token },
     });
 
-    console.log('Album successfully retrieved.');
-    // console.log(response);
+    if (response.status === 200) {
+        console.log(`${query} successfully retrieved.`);
+        return response.json();
+
+    } else {
+        console.error(`Error getting ${query} - ${response.status}: ${response.statusText}`);
+        return null;
+    }
 
     return await response.json();
 }
