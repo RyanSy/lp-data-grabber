@@ -10,8 +10,10 @@ let modifiedCsvJson = [];
  * Global config.
  */
 const config = {
-  inputFile: './src/csv/products-that-need-new-images.csv', // old file
-  outputFile: './src/csv/products-with-updated-images.csv', // updated file
+  inputFile: './src/csv/test-old.csv', // old file (TESTING)
+  outputFile: './src/csv/test-new.csv', // updated file (TESTING)
+//   inputFile: './src/csv/products-that-need-new-images.csv', // old file
+//   outputFile: './src/csv/products-with-updated-images.csv', // updated file
   rejectsFile: './src/csv/rejects.csv' // albums not found
 };
 
@@ -89,9 +91,9 @@ function init() {
     fs.createReadStream(config.inputFile)
       .pipe(csv())
       .on('data', (data) => inputCsvJson.push(data))
-      .on('end', async () => {
+      .on('end', () => {
         modifiedCsvJson = inputCsvJson;
-        await initFunctions();
+        initFunctions();
       });
 }
 
@@ -105,21 +107,25 @@ async function initFunctions() {
     let rejects = [];
 
     const intervalId = setInterval(async () => {
-            const url = await updateImageUrl(modifiedCsvJson[index]['Title']);
+            const album = modifiedCsvJson[index]['Title'];
+            const url = await updateImageUrl(album);
             const item = modifiedCsvJson[index];
             const itemKey = 'Image Src';
             
-            if (url) {
+            if (url != null) {
                 item[itemKey] = url;
             } else {
                 item[itemKey] = '';
                 rejects.push(item)
+                console.log(`"${album}" saved to rejects list.`);
             }
 
             updatedItems.push(item);
+            console.log(`"${album}" saved to updated items.`);
 
             index++;
-            if (index >= modifiedCsvJson.length) {
+            
+            if (index === modifiedCsvJson.length) {
                 await productCsvWriter.writeRecords(updatedItems)
                     .then(() => {
                         console.log(`${config.outputFile} updated successfully.`);
@@ -149,12 +155,13 @@ async function initFunctions() {
  */
 async function updateImageUrl(album) {    
     try {
-        const token = await getToken().then(async data => await data.access_token);
-        const coverArtUrl = await searchForAlbum(token, album).then(async data => await data.albums.items[0].images[0].url);
-        return await coverArtUrl;
+        const token = await getToken().then(data => data.access_token);
+        const coverArtUrl = await searchForAlbum(token, album).then(data => data.albums.items[0].images[0].url);
+        console.log(`Image url found for "${album}".`)
+        return coverArtUrl;
     } catch (err) {
-        await console.error(`Error updating image url for ${album}: ${err}`);
-        return await null;
+        console.error(`Error updating image url for "${album}": ${err}`);
+        return null;
     }
 }
 

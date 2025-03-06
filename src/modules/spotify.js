@@ -74,15 +74,13 @@ export async function searchForAlbum(access_token, query) {
     });
 
     if (response.status === 200) {
-        console.log(`${query} successfully retrieved.`);
+        console.log(`"${query}" successfully retrieved.`);
         return response.json();
 
     } else {
-        console.error(`Error getting ${query} - ${response.status}: ${response.statusText}`);
+        console.error(`Error getting "${query}" - ${response.status}: ${response.statusText}`);
         return null;
     }
-
-    return await response.json();
 }
 
 
@@ -102,8 +100,12 @@ export async function getArtist(access_token, href) {
         headers: { 'Authorization': 'Bearer ' + access_token },
     });
 
-    console.log('Artist data successfully retrieved.');
-    // console.log(response);
+    if (response.status === 200) {
+        console.log('Artist data successfully retrieved.');;
+        return response.json();
 
-    return await response.json();
+    } else {
+        console.error(`Error getting artist data - ${response.status}: ${response.statusText}`);
+        return null;
+    }
 }
