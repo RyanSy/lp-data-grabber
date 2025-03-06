@@ -1,16 +1,10 @@
 import { getToken, searchForAlbum } from './modules/spotify.js';
 import * as fs from 'node:fs';
-import createCsvWriter from 'csv-writer';
 import { createObjectCsvWriter } from 'csv-writer';
 import csv from 'csv-parser';
-import { albumTitles } from './lists/test-list.js';
-const albumTitlesLength = albumTitles.length;
-// let index = 0;
 
 const inputCsvJson = [];
 let modifiedCsvJson = [];
-let updatedItems = [];
-let rejects = [];
 
 /**
  * Global config.
@@ -107,6 +101,8 @@ function init() {
 async function initFunctions() {
     console.log('Initiating script...');
     let index = 0;
+    let updatedItems = [];
+    let rejects = [];
 
     const intervalId = setInterval(async () => {
             const url = await updateImageUrl(modifiedCsvJson[index]['Title']);
