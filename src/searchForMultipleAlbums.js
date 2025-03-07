@@ -1,3 +1,7 @@
+/**
+ * Uses Spotify module.
+ */
+
 import { getToken, searchForAlbum, getArtist } from "./modules/spotify.js";
 import writeCSV from "write-csv";
 import { wantlist } from "./lists/wantlist.js";

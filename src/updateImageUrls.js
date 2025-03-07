@@ -1,19 +1,21 @@
-import { getToken, searchForAlbum } from './modules/spotify.js';
+import { searchForAlbum, searchForCoverArt } from './modules/musicbrainz.js';
 import * as fs from 'node:fs';
 import { createObjectCsvWriter } from 'csv-writer';
 import csv from 'csv-parser';
 const inputCsvJson = [];
 let modifiedCsvJson = [];
-console.log('\n');
+let updatedItems = [];
+let rejects = [];
+let index = 0;
 
 /**
  * Global config.
  */
 const config = {
-//   inputFile: './src/csv/test-old.csv', // old file (TESTING)
-//   outputFile: './src/csv/test-new.csv', // updated file (TESTING)
-  inputFile: './src/csv/products-that-need-new-images.csv', // old file
-  outputFile: './src/csv/products-with-updated-images.csv', // updated file
+  inputFile: './src/csv/test-old.csv', // old file (TESTING)
+  outputFile: './src/csv/test-new.csv', // updated file (TESTING)
+//   inputFile: './src/csv/products-that-need-new-images.csv', // old file
+//   outputFile: './src/csv/products-with-updated-images.csv', // updated file
   rejectsFile: './src/csv/rejects.csv' // albums not found
 };
 
@@ -92,6 +94,7 @@ function init() {
       .pipe(csv())
       .on('data', (data) => inputCsvJson.push(data))
       .on('end', () => {
+        console.log(`Done parsing ${config.inputFile}.`)
         modifiedCsvJson = inputCsvJson;
         initFunctions();
       });
@@ -102,52 +105,82 @@ function init() {
  */
 async function initFunctions() {
     console.log('Initiating script...');
-    let index = 0;
-    let updatedItems = [];
-    let rejects = [];
-
-    const intervalId = setInterval(async () => {
-            const album = modifiedCsvJson[index]['Title'];
-            const url = await updateImageUrl(album);
-            const item = modifiedCsvJson[index];
-            const itemKey = 'Image Src';
+    
+    // const intervalId = setInterval(async () => {
+    //         const album = modifiedCsvJson[index]['Title'];
+    //         const url = await updateImageUrl(album);
+    //         const item = modifiedCsvJson[index];
+    //         const itemKey = 'Image Src';
             
-            if (url != null) {
-                item[itemKey] = url;
-            } else {
-                item[itemKey] = '';
-                rejects.push(item)
-                console.log(`"${album}" saved to rejects list.`);
-            }
+    //         if (url != null) {
+    //             item[itemKey] = url;
+    //         } else {
+    //             item[itemKey] = '';
+    //             rejects.push(item)
+    //             console.log(`"${album}" saved to rejects list.`);
+    //         }
 
-            updatedItems.push(item);
-            console.log(`"${album}" saved to updated items.`);
+    //         updatedItems.push(item);
+    //         console.log(`"${album}" saved to updated items.`);
 
-            index++;
+    //         await index++;
 
-            if (index === modifiedCsvJson.length) {
-                await productCsvWriter.writeRecords(updatedItems)
-                    .then(() => {
-                        console.log(`${config.outputFile} updated successfully.`);
-                    })
-                    .catch(err => {
-                        console.error(`Error updating ${config.outputFile}: ${err}`);
-                    });
+    //         if (index === modifiedCsvJson.length) {
+    //             await productCsvWriter.writeRecords(updatedItems)
+    //                 .then(() => {
+    //                     console.log(`${config.outputFile} updated successfully.`);
+    //                 })
+    //                 .catch(err => {
+    //                     console.error(`Error updating ${config.outputFile}: ${err}`);
+    //                 });
 
-                await rejectsCsvWriter.writeRecords(rejects)
-                    .then(() => {
-                        console.log(`${config.rejectsFile} updated successfully.`);
-                    })
-                    .catch(err => {
-                        console.error(`Error updating ${config.rejectsFile}: ${err}`);
-                    })
+    //             await rejectsCsvWriter.writeRecords(rejects)
+    //                 .then(() => {
+    //                     console.log(`${config.rejectsFile} updated successfully.`);
+    //                 })
+    //                 .catch(err => {
+    //                     console.error(`Error updating ${config.rejectsFile}: ${err}`);
+    //                 });
 
-                clearInterval(intervalId);
+    //             clearInterval(intervalId);
 
-                console.log('Done.')
-            }
-        }, 1000);
+    //             console.log('Done.')
+    //         }
+    //     }, 1000);
+    for (let i = 0; i < modifiedCsvJson.length; i++) {
+        const album = modifiedCsvJson[i]['Title'];
+        const url = await updateImageUrl(album);
+        const item = modifiedCsvJson[i];
+        const itemKey = 'Image Src';
+        
+        if (url != null) {
+            item[itemKey] = url;
+        } else {
+            item[itemKey] = '';
+            await rejects.push(item)
+            console.log(`"${album}" saved to rejects list.`);
+        }
 
+        await updatedItems.push(item);
+        console.log(`"${album}" saved to updated items.`);
+
+        await productCsvWriter.writeRecords(updatedItems)
+            .then(() => {
+                console.log(`${config.outputFile} updated successfully.`);
+            })
+            .catch(err => {
+                console.error(`Error updating ${config.outputFile}: ${err}`);
+            });
+
+        await rejectsCsvWriter.writeRecords(rejects)
+            .then(() => {
+                console.log(`${config.rejectsFile} updated successfully.`);
+            })
+            .catch(err => {
+                console.error(`Error updating ${config.rejectsFile}: ${err}`);
+            });
+
+    }
 }
 
 /**
@@ -155,9 +188,9 @@ async function initFunctions() {
  */
 async function updateImageUrl(album) {    
     try {
-        const token = await getToken().then(data => data.access_token);
-        const coverArtUrl = await searchForAlbum(token, album).then(data => data.albums.items[0].images[0].url);
-        console.log(`Image url found for "${album}".`)
+        const release = await searchForAlbum(album).then(data => data);
+        const id = release.id;
+        const coverArtUrl = await searchForCoverArt(id).then(data => data);
         return coverArtUrl;
     } catch (err) {
         console.error(`Error updating image url for "${album}": ${err}`);

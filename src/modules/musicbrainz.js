@@ -24,7 +24,7 @@ export async function searchForAlbum(query) {
             return data.releases[0];
         })
         .catch(error => {
-            console.error('There was an error:', error);
+            console.error(`Error searching for ${query} - ${error}`);
             return null;
         });  
 
@@ -64,8 +64,8 @@ export async function searchForAlbum(query) {
 /**
  * Searches the Cover Art Archive for an album cover image.
  * 
- * @param {string} id - Album to search for.
- * @returns JSON object containing album data.
+ * @param {string} id - Release ID from MusicBrainz to search for.
+ * @returns URL string of the image.
  */
 export async function searchForCoverArt(id) {
     console.log(`\nSearching for cover art...`);
@@ -87,19 +87,9 @@ export async function searchForCoverArt(id) {
             return data.images[0].image;
         })
         .catch(error => {
-            console.error('There was an error:', error);
+            console.error(`Error searching for image for album id # ${id} - ${error}`);
             return null;
         });  
 
     return image;
 }
-
-// SAMPLES:
-
-// searchForAlbum('pete-rock-return-of-the-sp1200').then(data => {
-//     console.log(data);
-// });
-
-// searchForCoverArt('d0941904-d861-4c0c-bf38-62a7b82eac98').then(data => {
-//     console.log(data);
-// });
