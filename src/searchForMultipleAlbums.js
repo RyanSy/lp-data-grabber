@@ -3,13 +3,16 @@ import writeCSV from "write-csv";
 import { wantlist } from "./lists/wantlist.js";
 const products = [];
 const date = new Date().toISOString();
+console.log('\n');
 
 // Get Spotify access token.
 const token = await getToken().then(data => data.access_token);
 
 // Get album data.
 for (let i = 0; i < wantlist.length; i++) {
-    const album = await searchForAlbum(token, wantlist[i]).then(data => data.albums.items[0]);
+    const album = await searchForAlbum(token, wantlist[i]).then(data => {
+        console.log(data.albums.items);
+    });
 
     // Get artist data.
     const artistHref = album.artists[0].href;

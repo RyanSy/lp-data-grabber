@@ -1,1 +1,1 @@
-export const wantlist = ['midnight mauarauders', 'low end theory', 'daily operation gang starr'];
+export const wantlist = ['Pete Rock - Return Of The SP1200'];

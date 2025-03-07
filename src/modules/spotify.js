@@ -66,9 +66,9 @@ export async function getNewReleases(access_token) {
  * @returns JSON object containing album data.
  */
 export async function searchForAlbum(access_token, query) {
-    console.log(`Searching for ${query}...`);
+    console.log(`Searching for "${query}"...`);
 
-    const response = await fetch(`https://api.spotify.com/v1/search?&q=${query}&type=album`, {
+    const response = await fetch(`https://api.spotify.com/v1/search?&q=${query}&type=album&limit=50`, {
         method: 'GET',
         headers: { 'Authorization': 'Bearer ' + access_token },
     });

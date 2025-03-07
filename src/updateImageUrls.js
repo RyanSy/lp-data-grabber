@@ -2,18 +2,18 @@ import { getToken, searchForAlbum } from './modules/spotify.js';
 import * as fs from 'node:fs';
 import { createObjectCsvWriter } from 'csv-writer';
 import csv from 'csv-parser';
-
 const inputCsvJson = [];
 let modifiedCsvJson = [];
+console.log('\n');
 
 /**
  * Global config.
  */
 const config = {
-  inputFile: './src/csv/test-old.csv', // old file (TESTING)
-  outputFile: './src/csv/test-new.csv', // updated file (TESTING)
-//   inputFile: './src/csv/products-that-need-new-images.csv', // old file
-//   outputFile: './src/csv/products-with-updated-images.csv', // updated file
+//   inputFile: './src/csv/test-old.csv', // old file (TESTING)
+//   outputFile: './src/csv/test-new.csv', // updated file (TESTING)
+  inputFile: './src/csv/products-that-need-new-images.csv', // old file
+  outputFile: './src/csv/products-with-updated-images.csv', // updated file
   rejectsFile: './src/csv/rejects.csv' // albums not found
 };
 
@@ -124,7 +124,7 @@ async function initFunctions() {
             console.log(`"${album}" saved to updated items.`);
 
             index++;
-            
+
             if (index === modifiedCsvJson.length) {
                 await productCsvWriter.writeRecords(updatedItems)
                     .then(() => {
