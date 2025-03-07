@@ -1,63 +1,181 @@
 /**
  * Searches the MusicBrainz database for a specific album.
  * 
- * @param {string} query - Album to search for.
+ * @param {string} title - Album to search for.
  * @returns JSON object containing album data.
  */
-export async function searchForAlbum(query) {
-    console.log(`\nSearching MusicBrainz db for "${query}"...`);
+export async function searchForAlbum(title) {
+    console.log(`Searching MusicBrainz db for "${title}"...`);
 
-    const album = await fetch(`https://musicbrainz.org/ws/2/release?query=release:${query}%20AND%20country:US`, {
+    const titleNoDashes = title.replace('- ', '');
+    const titleNoSymbols = titleNoDashes.replace(/[^a-zA-Z0-9\s]/g, '');
+    const titleEncoded = titleNoSymbols.replace(/ /g, '%20');
+
+    const result = await fetch(`https://musicbrainz.org/ws/2/release-group/?query=release-group:${titleEncoded}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
           'User-Agent': 'LpDataGrabber/1.0 ( ryanbsy@gmail.com )'
-        },
+        }
     })
         .then(response => {
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+                throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}.`);
             }
             return response.json();
         })
         .then(data => {
-            return data.releases[0];
+            return data['release-groups'][0];
         })
         .catch(error => {
-            console.error(`Error searching for ${query} - ${error}`);
+            console.error(`Error searching for ${album} - ${error}.`);
             return null;
         });  
 
-    return album;
+    return result;
 }
-/**
- * sample output:
- * {
-  id: 'd0941904-d861-4c0c-bf38-62a7b82eac98',
+
+/*
+
+Sample result:
+
+{
+  id: 'c3733436-fcba-3c08-b082-d548df5c5139',
+  'type-id': 'f529b476-6e62-324f-b0aa-1f3e33d313fc',
   score: 100,
-  'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
-  count: 1,
-  title: 'Return of the SP1200',
-  status: 'Official',
-  'text-representation': { language: 'eng', script: 'Latn' },
-  'artist-credit': [ { name: 'Pete Rock', artist: [Object] } ],
-  'release-group': {
-    id: 'da819646-254a-4993-aaf6-daee5c890e64',
-    'type-id': 'f529b476-6e62-324f-b0aa-1f3e33d313fc',
-    'primary-type-id': 'f529b476-6e62-324f-b0aa-1f3e33d313fc',
-    title: 'Return of the SP1200',
-    'primary-type': 'Album'
-  },
-  date: '2019-04-13',
-  country: 'US',
-  'release-events': [ { date: '2019-04-13', area: [Object] } ],
-  barcode: '706091100116',
-  asin: 'B07PCK6HV6',
-  'label-info': [ { 'catalog-number': 'TRU1001-LP', label: [Object] } ],
-  'track-count': 15,
-  media: [ { format: '12" Vinyl', 'disc-count': 0, 'track-count': 15 } ]
+  'primary-type-id': 'f529b476-6e62-324f-b0aa-1f3e33d313fc',
+  count: 18,
+  title: 'The Low End Theory',
+  'first-release-date': '1991-09-24',
+  'primary-type': 'Album',
+  'artist-credit': [ { name: 'A Tribe Called Quest', artist: [Object] } ],
+  releases: [
+    {
+      id: '7f951fa8-bfd3-4b0d-9c26-3f357d556613',
+      'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
+      title: 'The Low End Theory',
+      status: 'Official'
+    },
+    {
+      id: '4c6ba9ff-95ee-4a28-abc3-6755d6d1972d',
+      'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
+      title: 'The Low End Theory',
+      status: 'Official'
+    },
+    {
+      id: '4e91cfe1-8196-40c1-aed6-0dcadb763a3b',
+      'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
+      title: 'The Low End Theory',
+      status: 'Official'
+    },
+    {
+      id: 'ffc8dd55-3ab3-4d62-a181-c3371189c507',
+      'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
+      title: 'The Low End Theory',
+      status: 'Official'
+    },
+    {
+      id: 'f7665768-5c71-4373-8a6c-5a0b8bd6b217',
+      'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
+      title: 'The Low End Theory',
+      status: 'Official'
+    },
+    {
+      id: '2f7ca6d1-00ee-4f37-8901-d2e2521a57fe',
+      'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
+      title: 'The Low End Theory',
+      status: 'Official'
+    },
+    {
+      id: '057796e8-30bb-4397-8e3d-3a8e6f0d7b19',
+      'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
+      title: 'The Low End Theory',
+      status: 'Official'
+    },
+    {
+      id: '00833c5d-da40-44d0-b5d7-a52328b251bc',
+      'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
+      title: 'The Low End Theory',
+      status: 'Official'
+    },
+    {
+      id: '19aaadc2-9ffa-3001-ad4f-111c367309a3',
+      'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
+      title: 'The Low End Theory',
+      status: 'Official'
+    },
+    {
+      id: 'a9dc3a10-39bb-4d03-8be2-200c18cdd2d1',
+      'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
+      title: 'The Low End Theory',
+      status: 'Official'
+    },
+    {
+      id: '6358e16c-1363-4607-975a-b477097d1a2f',
+      'status-id': '518ffc83-5cde-34df-8627-81bff5093d92',
+      title: 'The Low End Theory',
+      status: 'Promotion'
+    },
+    {
+      id: 'e405a0f0-50e4-4121-83f5-5aa8596b87a4',
+      'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
+      title: 'The Low End Theory',
+      status: 'Official'
+    },
+    {
+      id: '69959f4a-29fd-4867-83ec-bfb4036b30d1',
+      'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
+      title: 'The Low End Theory',
+      status: 'Official'
+    },
+    {
+      id: '0097556c-c0b2-4be8-993b-4bf22284a0e4',
+      'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
+      title: 'The Low End Theory',
+      status: 'Official'
+    },
+    {
+      id: '79e54943-5a93-4fdc-a7f7-27d33f1a1b28',
+      'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
+      title: 'The Low End Theory',
+      status: 'Official'
+    },
+    {
+      id: 'cf45c6f5-b53f-4424-8caf-9ff792796cf2',
+      'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
+      title: 'The Low End Theory',
+      status: 'Official'
+    },
+    {
+      id: '63747b49-c817-4688-a3c3-c6b534672f3e',
+      'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
+      title: 'The Low End Theory',
+      status: 'Official'
+    },
+    {
+      id: 'e2b51264-ab8f-4168-849d-738e703ac24e',
+      'status-id': '4e304316-386d-3409-af2e-78857eec5cfe',
+      title: 'The Low End Theory',
+      status: 'Official'
+    }
+  ],
+  tags: [
+    { count: 0, name: 'hip-hop' },
+    { count: 1, name: 'mellow' },
+    { count: 10, name: 'hip hop' },
+    { count: 4, name: 'conscious' },
+    { count: 0, name: 'hip hop rnb and dance hall' },
+    { count: 0, name: 'hip hop rap' },
+    { count: 1, name: 'sampling' },
+    { count: 1, name: 'boom bap' },
+    { count: 1, name: 'rhythmic' },
+    { count: 7, name: 'jazz rap' },
+    { count: 4, name: 'conscious hip hop' },
+    { count: 5, name: 'east coast hip hop' }
+  ]
 }
- */
+
+*/
 
 
 
@@ -68,18 +186,18 @@ export async function searchForAlbum(query) {
  * @returns URL string of the image.
  */
 export async function searchForCoverArt(id) {
-    console.log(`\nSearching for cover art...`);
+    console.log(`Searching for cover art...`);
 
-    const image = await fetch(`https://coverartarchive.org/release/${id}`, {
+    const image = await fetch(`http://coverartarchive.org/release-group/${id}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
           'User-Agent': 'LpDataGrabber/1.0 ( ryanbsy@gmail.com )'
-        },
+        }
     })
         .then(response => {
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+                throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}.`);
             }
             return response.json();
         })
@@ -87,7 +205,7 @@ export async function searchForCoverArt(id) {
             return data.images[0].image;
         })
         .catch(error => {
-            console.error(`Error searching for image for album id # ${id} - ${error}`);
+            console.error(`Error searching for image for album id # ${id} - ${error}.`);
             return null;
         });  
 

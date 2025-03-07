@@ -126,21 +126,7 @@ async function initFunctions() {
     //         await index++;
 
     //         if (index === modifiedCsvJson.length) {
-    //             await productCsvWriter.writeRecords(updatedItems)
-    //                 .then(() => {
-    //                     console.log(`${config.outputFile} updated successfully.`);
-    //                 })
-    //                 .catch(err => {
-    //                     console.error(`Error updating ${config.outputFile}: ${err}`);
-    //                 });
 
-    //             await rejectsCsvWriter.writeRecords(rejects)
-    //                 .then(() => {
-    //                     console.log(`${config.rejectsFile} updated successfully.`);
-    //                 })
-    //                 .catch(err => {
-    //                     console.error(`Error updating ${config.rejectsFile}: ${err}`);
-    //                 });
 
     //             clearInterval(intervalId);
 
@@ -148,54 +134,47 @@ async function initFunctions() {
     //         }
     //     }, 1000);
     for (let i = 0; i < modifiedCsvJson.length; i++) {
-        const album = modifiedCsvJson[i]['Title'];
-        const url = await updateImageUrl(album);
+        console.log(`\nindex: ${i}`);
         const item = modifiedCsvJson[i];
         const itemKey = 'Image Src';
-        
+        const title = item['Title'];
+        const url = await updateImageUrl(title);
         if (url != null) {
             item[itemKey] = url;
         } else {
             item[itemKey] = '';
             await rejects.push(item)
-            console.log(`"${album}" saved to rejects list.`);
+            await console.log(`"${title}" saved to rejects list.`);
         }
-
         await updatedItems.push(item);
-        console.log(`"${album}" saved to updated items.`);
-
-        await productCsvWriter.writeRecords(updatedItems)
-            .then(() => {
-                console.log(`${config.outputFile} updated successfully.`);
-            })
-            .catch(err => {
-                console.error(`Error updating ${config.outputFile}: ${err}`);
-            });
-
-        await rejectsCsvWriter.writeRecords(rejects)
-            .then(() => {
-                console.log(`${config.rejectsFile} updated successfully.`);
-            })
-            .catch(err => {
-                console.error(`Error updating ${config.rejectsFile}: ${err}`);
-            });
-
+        await console.log(`"${title}" saved to updated items list.`);
     }
+
+    await productCsvWriter.writeRecords(updatedItems)
+        .then(() => {
+            console.log(`${config.outputFile} updated successfully.`);
+        })
+        .catch(err => {
+            console.error(`Error updating ${config.outputFile}: ${err}`);
+        });
+
+    await rejectsCsvWriter.writeRecords(rejects)
+        .then(() => {
+            console.log(`${config.rejectsFile} updated successfully.`);
+        })
+        .catch(err => {
+            console.error(`Error updating ${config.rejectsFile}: ${err}`);
+        });
 }
 
 /**
  * Search Spotify API for new image url and update product csv file.
  */
-async function updateImageUrl(album) {    
-    try {
-        const release = await searchForAlbum(album).then(data => data);
-        const id = release.id;
-        const coverArtUrl = await searchForCoverArt(id).then(data => data);
-        return coverArtUrl;
-    } catch (err) {
-        console.error(`Error updating image url for "${album}": ${err}`);
-        return null;
-    }
+async function updateImageUrl(title) {    
+    const release = await searchForAlbum(title).then(data => data);
+    const id = release.id;
+    const coverArtUrl = await searchForCoverArt(id).then(data => data);
+    return coverArtUrl;
 }
 
 init();
