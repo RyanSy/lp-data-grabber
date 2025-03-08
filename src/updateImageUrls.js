@@ -4,9 +4,9 @@ import { createObjectCsvWriter } from 'csv-writer';
 import csv from 'csv-parser';
 const inputCsvJson = [];
 let modifiedCsvJson = [];
+let modifiedCsvJsonLength;
 let updatedItems = [];
 let rejects = [];
-let index = 0;
 
 /**
  * Global config.
@@ -96,46 +96,21 @@ function init() {
       .on('end', () => {
         console.log(`Done parsing ${config.inputFile}.`)
         modifiedCsvJson = inputCsvJson;
-        initFunctions();
+        modifiedCsvJsonLength = modifiedCsvJson.length;
+        updateImageUrls();
       });
 }
 
 /**
- * Execute functions once data is available.
+ * Update Shopify product csv template with new image urls.
  */
-async function initFunctions() {
-    console.log('Initiating script...');
-    
-    // const intervalId = setInterval(async () => {
-    //         const album = modifiedCsvJson[index]['Title'];
-    //         const url = await updateImageUrl(album);
-    //         const item = modifiedCsvJson[index];
-    //         const itemKey = 'Image Src';
-            
-    //         if (url != null) {
-    //             item[itemKey] = url;
-    //         } else {
-    //             item[itemKey] = '';
-    //             rejects.push(item)
-    //             console.log(`"${album}" saved to rejects list.`);
-    //         }
+async function updateImageUrls() {
+    console.log(`Initiating script: ${modifiedCsvJsonLength} items to update...`);
 
-    //         updatedItems.push(item);
-    //         console.log(`"${album}" saved to updated items.`);
-
-    //         await index++;
-
-    //         if (index === modifiedCsvJson.length) {
-
-
-    //             clearInterval(intervalId);
-
-    //             console.log('Done.')
-    //         }
-    //     }, 1000);
-    for (let i = 0; i < modifiedCsvJson.length; i++) {
-        console.log(`\nindex: ${i}`);
-        const item = modifiedCsvJson[i];
+    let index = 0;
+    const intervalId = setInterval(async () => {
+        console.log(`\nindex: ${index}`);
+        const item = modifiedCsvJson[index];
         const itemKey = 'Image Src';
         const title = item['Title'];
         const url = await updateImageUrl(title);
@@ -148,33 +123,44 @@ async function initFunctions() {
         }
         await updatedItems.push(item);
         await console.log(`"${title}" saved to updated items list.`);
-    }
+        await index++;
 
-    await productCsvWriter.writeRecords(updatedItems)
-        .then(() => {
-            console.log(`${config.outputFile} updated successfully.`);
-        })
-        .catch(err => {
-            console.error(`Error updating ${config.outputFile}: ${err}`);
-        });
+        if (index === modifiedCsvJson.length) {
+            await productCsvWriter.writeRecords(updatedItems)
+                .then(async () => {
+                    await console.log(`${config.outputFile} updated successfully.`);
+                })
+                .catch(async err => {
+                    await console.error(`Error updating ${config.outputFile}: ${err}`);
+                });
 
-    await rejectsCsvWriter.writeRecords(rejects)
-        .then(() => {
-            console.log(`${config.rejectsFile} updated successfully.`);
-        })
-        .catch(err => {
-            console.error(`Error updating ${config.rejectsFile}: ${err}`);
-        });
+            await rejectsCsvWriter.writeRecords(rejects)
+                .then(async () => {
+                    await console.log(`${config.rejectsFile} updated successfully.`);
+                })
+                .catch(async err => {
+                    await console.error(`Error updating ${config.rejectsFile}: ${err}`);
+                });
+                console.log('Done.')
+
+            clearInterval(intervalId);
+        }
+    }, 1500);
 }
 
 /**
- * Search Spotify API for new image url and update product csv file.
+ * Search MusicBrainz db for new image url.
  */
 async function updateImageUrl(title) {    
     const release = await searchForAlbum(title).then(data => data);
-    const id = release.id;
-    const coverArtUrl = await searchForCoverArt(id).then(data => data);
-    return coverArtUrl;
+
+    if (release == null) {
+        return null;
+    } else {
+        const id = release.id;
+        const coverArtUrl = await searchForCoverArt(id).then(data => data);
+        return coverArtUrl;   
+    }
 }
 
 init();
