@@ -1,4 +1,5 @@
-import { searchForAlbum, searchForCoverArt } from './modules/musicbrainz.js';
+// import { searchForAlbum, searchForCoverArt } from './modules/musicbrainz.js';
+import { searchMasterRelease } from './modules/discogs.js';
 import * as fs from 'node:fs';
 import { createObjectCsvWriter } from 'csv-writer';
 import csv from 'csv-parser';
@@ -124,11 +125,11 @@ async function updateImageUrls() {
             item[itemKey] = url;
         } else {
             item[itemKey] = '';
-            await rejects.push(item)
-            await console.log(`"${title}" saved to rejects list.`);
+            await rejects.push(item);
+            await console.log(`"${title}" saved to rejects array.`);
         }
         await updatedItems.push(item);
-        await console.log(`"${title}" saved to updated items list.`);
+        await console.log(`"${title}" saved to updated items array.`);
         await index++;
 
         if (index === modifiedCsvJson.length) {
@@ -151,21 +152,32 @@ async function updateImageUrls() {
 
             clearInterval(intervalId);
         }
-    }, 2100);
+    }, 2000);
 }
 
 /**
- * Search MusicBrainz db for new image url.
+ * Search for image url.
  */
-async function updateImageUrl(title) {    
-    const release = await searchForAlbum(title).then(data => data);
+async function updateImageUrl(title) {
+    // Using MusicBrainz:
+    // const release = await searchForAlbum(title).then(data => data);
 
-    if (release == null) {
-        return null;
+    // if (release == null) {
+    //     return null;
+    // } else {
+    //     const id = release.id;
+    //     const coverArtUrl = await searchForCoverArt(id).then(data => data);
+    //     return coverArtUrl;   
+    // }
+
+    // Using Discogs:
+    const masterRelease = await searchMasterRelease(title).then(data => data);
+
+    if (masterRelease) {
+        const coverArtUrl = masterRelease.cover_image; 
+        return coverArtUrl;
     } else {
-        const id = release.id;
-        const coverArtUrl = await searchForCoverArt(id).then(data => data);
-        return coverArtUrl;   
+        return null;
     }
 }
 
