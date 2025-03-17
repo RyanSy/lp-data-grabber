@@ -20,8 +20,8 @@ let rejects = [];
 
 // Live
 const config = {
-      inputFile: './src/csv/products-that-need-new-images.csv', // old file
-      outputFile: './src/csv/products-with-updated-images.csv', // updated file
+      inputFile: './src/csv/products-that-need-new-images-2.csv', // old file
+      outputFile: './src/csv/products-with-updated-images-2.csv', // updated file
       rejectsFile: './src/csv/rejects.csv' // albums not found
 };
 
@@ -151,7 +151,7 @@ async function updateImageUrls() {
 
             clearInterval(intervalId);
         }
-    }, 2000);
+    }, 2100);
 }
 
 /**
