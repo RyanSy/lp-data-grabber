@@ -12,18 +12,18 @@ let rejects = [];
  * Global config.
  */
 // Testing
-const config = {
-  inputFile: './src/csv/test/old-test.csv', // old file (TESTING)
-  outputFile: './src/csv/test/new-test.csv', // updated file (TESTING)
-  rejectsFile: './src/csv/test/rejects-test.csv' // albums not found
-};
+// const config = {
+//   inputFile: './src/csv/test/old-test.csv', // old file (TESTING)
+//   outputFile: './src/csv/test/new-test.csv', // updated file (TESTING)
+//   rejectsFile: './src/csv/test/rejects-test.csv' // albums not found
+// };
 
 // Live
-// const config = {
-//       inputFile: './src/csv/products-that-need-new-images.csv', // old file
-//       outputFile: './src/csv/products-with-updated-images.csv', // updated file
-//       rejectsFile: './src/csv/rejects.csv' // albums not found
-// };
+const config = {
+      inputFile: './src/csv/products-that-need-new-images.csv', // old file
+      outputFile: './src/csv/products-with-updated-images.csv', // updated file
+      rejectsFile: './src/csv/rejects.csv' // albums not found
+};
 
 const productHeader = [
     {id: 'Handle', title: 'Handle'},
@@ -151,7 +151,7 @@ async function updateImageUrls() {
 
             clearInterval(intervalId);
         }
-    }, 1500);
+    }, 2000);
 }
 
 /**

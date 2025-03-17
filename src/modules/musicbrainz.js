@@ -31,7 +31,7 @@ export async function searchForAlbum(title) {
           let releaseGroup;
           if (releaseGroups.length > 0) {
             console.log('Release group found.')
-            releaseGroup = releaseGroups[0]
+            releaseGroup = releaseGroups[4]
           } else {
             console.log('No release group found.');
             releaseGroup = null;
@@ -40,14 +40,14 @@ export async function searchForAlbum(title) {
           return releaseGroup;
         })
         .catch(error => {
-          console.error(`Error searching for ${album} - ${error}.`);
+          console.error(`Error searching for ${title} - ${error}.`);
           return null;
         });  
 
     return result;
 }
 
-// searchForAlbum('A Tribe Called Quest - The Low End Theory').then(data => console.log(data));
+// searchForAlbum('A Tribe Called Quest - Low End Theory').then(data => console.log(data));
 
 /**
  * Sample result:
@@ -241,5 +241,5 @@ export async function searchForCoverArt(id) {
 /**
  * Sample result:
  * 
- * http://coverartarchive.org/release/69959f4a-29fd-4867-83ec-bfb4036b30d1/1672879787.jpg
+ * https://ia800308.us.archive.org/7/items/mbid-69959f4a-29fd-4867-83ec-bfb4036b30d1/mbid-69959f4a-29fd-4867-83ec-bfb4036b30d1-1672879787.jpg
  */
