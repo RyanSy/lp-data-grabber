@@ -5,14 +5,18 @@ import { getCharactersBefore, getCharactersAfter } from "../util/titleSeparator.
  * @param {string} title - Album to search for.
  * @returns JSON object containing MusicBrainz release-group data.
  */
-export async function searchForAlbum(title) {
+export async function searchForReleaseGroup(title) {
     console.log(`Searching MusicBrainz db for "${title}"...`);
 
-    // trim whitespace, remove spceial characters, and encode
-    const artist = getCharactersBefore(title, '-').trim().replace(/[^a-zA-Z0-9\s]/g, '').replace(/ /g, '%20');
-    const release = getCharactersAfter(title, '-').trim().replace(/[^a-zA-Z0-9\s]/g, '').replace(/ /g, '%20');
+    // Extract values from title & trim whitespace.
+    const artist = getCharactersBefore(title, '-').trim();
+    const release = getCharactersAfter(title, '-').trim();
 
-    const result = await fetch(`https://musicbrainz.org/ws/2/release-group/?query=artist:%22${artist}%22%20AND%20release:%22${release}%22`, {
+    // Remove spceial characters, and encode.
+    const artistEncoded = artist.replace(/[^a-zA-Z0-9\s]/g, ' ').replace(/ /g, '%20');
+    const releaseEncoded = release.replace(/[^a-zA-Z0-9\s]/g, ' ').replace(/ /g, '%20');
+
+    const result = await fetch(`https://musicbrainz.org/ws/2/release-group/?query=artist:%22${artistEncoded}%22%20AND%20release:%22${releaseEncoded}%22ANDlimit=1ANDtype=album`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -23,15 +27,17 @@ export async function searchForAlbum(title) {
           if (!response.ok) {
               throw new Error(`HTTP error! Status: ${response.status} - ${response.statusText}.`);
           }
+
           return response.json();
         })
         .then(data => {
           const releaseGroups = data['release-groups'];
-
+          
           let releaseGroup;
+
           if (releaseGroups.length > 0) {
             console.log('Release group found.')
-            releaseGroup = releaseGroups[4]
+            releaseGroup = releaseGroups[4];
           } else {
             console.log('No release group found.');
             releaseGroup = null;
@@ -47,10 +53,11 @@ export async function searchForAlbum(title) {
     return result;
 }
 
-// searchForAlbum('The Alchemist - Heads I Win, Tails You Losey').then(data => console.log(data));
+// Sample request:
+searchForReleaseGroup('Billy Idol - Rebel Yell').then(data => console.log(data));
 
 /**
- * Sample result:
+ * Sample response:
  * 
  * {
       id: 'c3733436-fcba-3c08-b082-d548df5c5139',
@@ -235,8 +242,8 @@ export async function searchForCoverArt(id) {
     return image;
 }
 
-// Search cover art using release group id from sample result above.
-// searchForCoverArt('c3733436-fcba-3c08-b082-d548df5c5139').then(data => console.log(data)); 
+// Search cover art using release group id from sample result above:
+// searchForCoverArt('5c4a34dd-86b9-3b5e-89d7-61b49628a806').then(data => console.log(data)); 
 
 /**
  * Sample result:
