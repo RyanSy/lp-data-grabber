@@ -123,13 +123,13 @@ async function updateImageUrls() {
         const url = await updateImageUrl(title);
         if (url != null) {
             item[itemKey] = url;
+            await updatedItems.push(item);
+            await console.log(`"${title}" saved to updated items array.`);    
         } else {
             item[itemKey] = '';
             await rejects.push(item);
             await console.log(`"${title}" saved to rejects array.`);
         }
-        await updatedItems.push(item);
-        await console.log(`"${title}" saved to updated items array.`);
         await index++;
 
         if (index === modifiedCsvJson.length) {
@@ -171,7 +171,7 @@ async function updateImageUrl(title) {
     // }
 
     // Using Discogs:
-    const masterRelease = await searchMasterRelease(title).then(data => data);
+    const masterRelease = await searchMasterRelease(title).then(data => log);
 
     if (masterRelease) {
         const coverArtUrl = masterRelease.cover_image; 

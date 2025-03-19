@@ -47,7 +47,7 @@ export async function searchForAlbum(title) {
     return result;
 }
 
-// searchForAlbum('A Tribe Called Quest - Low End Theory').then(data => console.log(data));
+// searchForAlbum('The Alchemist - Heads I Win, Tails You Losey').then(data => console.log(data));
 
 /**
  * Sample result:

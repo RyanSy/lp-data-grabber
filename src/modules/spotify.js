@@ -83,6 +83,11 @@ export async function searchForAlbum(access_token, query) {
     }
 }
 
+// Test
+const token = await getToken().then(data => data.access_token);
+searchForAlbum(token, 'The Alchemist - Heads I Win, Tails You Lose').then(data => {
+    console.log(data.albums.items[0])
+});
 
 
 /**

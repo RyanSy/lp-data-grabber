@@ -11,7 +11,7 @@ const discogsToken = process.env.DISCOGS_TOKEN;
 export async function searchMasterRelease(query) {
     console.log(`Searching Discogs database for master release data for "${query}"...`);
 
-    const album = await fetch(`https://api.discogs.com/database/search?q=${query}&type=master&token=${discogsToken}`, {
+    const album = await fetch(`https://api.discogs.com/database/search?q=${query}&type=master&format=lp&token=${discogsToken}`, {
         headers: {
             'User-Agent': 'LP Data Grabber 1.0: ryanbsy@gmail.com)'
         }
@@ -33,11 +33,17 @@ export async function searchMasterRelease(query) {
         })
         .then(data => {
             if (data.results.length > 0) {
-                console.log('Discogs master release data found.');
                 const albumData = data.results[0];
-                return albumData;
+                console.log(albumData)
+                // if (query == albumData.title) {
+                //     console.log('Discogs master release data found.');
+                //     return albumData;
+                // } else {
+                //     console.log('Query and title do not match.');
+                //     return null;
+                // }
             } else {
-                console.log('No Discogs album data found.');
+                console.log('No Discogs master release data found.');
                 return null;
             }
         })
@@ -50,7 +56,7 @@ export async function searchMasterRelease(query) {
     }
 }
 
-// searchMasterRelease('slowthai - U Gotta Love Yourself').then(data => console.log(data));
+// searchMasterRelease('The Alchemist - Heads I Win, Tails You Lose').then(data => console.log(data));
 
 /**
  * Sample response:
