@@ -4,14 +4,14 @@ const discogsToken = process.env.DISCOGS_TOKEN;
 
 
 /**
- * Searches Discogs database for master data
- * @param {String} query - The album to search for
- * @returns {Object} A JSON object containing master data
+ * Searches Discogs database for master data.
+ * @param {String} query - The album to search for.
+ * @returns {Object} A JSON object containing master data.
  */
-export async function searchMasterRelease(query) {
+export async function search(query) {
     console.log(`Searching Discogs database for master release data for "${query}"...`);
 
-    const album = await fetch(`https://api.discogs.com/database/search?q=${query}&type=master&format=lp&token=${discogsToken}`, {
+    const masterRelease = await fetch(`https://api.discogs.com/database/search?q=${query}&type=master&format=album&token=${discogsToken}`, {
         headers: {
             'User-Agent': 'LP Data Grabber 1.0: ryanbsy@gmail.com)'
         }
@@ -31,17 +31,13 @@ export async function searchMasterRelease(query) {
 
             return response.json();
         })
-        .then(data => {
+        .then(data => {            
             if (data.results.length > 0) {
-                const albumData = data.results[0];
-                console.log(albumData)
-                // if (query == albumData.title) {
-                //     console.log('Discogs master release data found.');
-                //     return albumData;
-                // } else {
-                //     console.log('Query and title do not match.');
-                //     return null;
-                // }
+                console.log('Master release data found.');
+                
+                const masterReleaseData = data.results[0];
+                
+                return masterReleaseData;
             } else {
                 console.log('No Discogs master release data found.');
                 return null;
@@ -49,14 +45,15 @@ export async function searchMasterRelease(query) {
         })
         .catch(err => console.error('Error searching Discogs database:', err));
     
-    if (album) {
-        return album;
+    if (masterRelease) {
+        return masterRelease;
     } else {
         return null;
     }
 }
 
-// searchMasterRelease('The Alchemist - Heads I Win, Tails You Lose').then(data => console.log(data));
+// Sample request:
+// searchMasterRelease('Billy Idol - Rebel Yell').then(data => console.log(data));
 
 /**
  * Sample response:

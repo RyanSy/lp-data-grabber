@@ -37,7 +37,7 @@ export async function searchForReleaseGroup(title) {
 
           if (releaseGroups.length > 0) {
             console.log('Release group found.')
-            releaseGroup = releaseGroups[4];
+            releaseGroup = releaseGroups[0];
           } else {
             console.log('No release group found.');
             releaseGroup = null;
@@ -54,7 +54,7 @@ export async function searchForReleaseGroup(title) {
 }
 
 // Sample request:
-searchForReleaseGroup('Billy Idol - Rebel Yell').then(data => console.log(data));
+// searchForReleaseGroup('Billy Idol - Rebel Yell').then(data => console.log(data));
 
 /**
  * Sample response:

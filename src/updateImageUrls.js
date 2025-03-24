@@ -1,6 +1,6 @@
-import { searchForReleaseGroup, searchForCoverArt } from './modules/musicbrainz.js';
-import { searchMasterRelease } from './modules/discogs.js';
-import { getToken, searchForAlbum } from './modules/spotify.js';
+// import { searchForReleaseGroup, searchForCoverArt } from './modules/musicbrainz.js';
+// import { search } from './modules/discogs.js';
+import { getAccessToken, searchForAlbum } from './modules/spotify.js';
 import * as fs from 'node:fs';
 import { createObjectCsvWriter } from 'csv-writer';
 import csv from 'csv-parser';
@@ -22,8 +22,8 @@ const config = {
 
 // Live
 // const config = {
-//       inputFile: './src/csv/products-that-need-new-images-2.csv', // old file
-//       outputFile: './src/csv/products-with-updated-images-2.csv', // updated file
+//       inputFile: './src/csv/input.csv', // old file
+//       outputFile: './src/csv/output.csv', // updated file
 //       rejectsFile: './src/csv/rejects.csv' // albums not found
 // };
 
@@ -117,7 +117,7 @@ async function updateImageUrls() {
 
     let index = 0;
     const intervalId = setInterval(async () => {
-        console.log(`\nindex: ${index}`);
+        console.log(`\n ===================== index: ${index} ===================== \n`);
         const item = modifiedCsvJson[index];
         const itemKey = 'Image Src';
         const title = item['Title'];
@@ -160,36 +160,12 @@ async function updateImageUrls() {
  * Search for image url.
  */
 async function updateImageUrl(title) {
-    let coverArtUrl;
-    let musicBrainzReleaseGroup;
-    let disogsMasterRelease;
-    let spotifyAlbum;
-
-    // Using MusicBrainz:
-    musicBrainzReleaseGroup = await searchForReleaseGroup(title).then(data => data);
-    if (musicBrainzReleaseGroup) {
-        const id = musicBrainzReleaseGroup.id;
-        coverArtUrl = await searchForCoverArt(id).then(data => data);
-    }
-
-    // Using Discogs if no result from MusicBrainz:
-    if (!musicBrainzReleaseGroup) {
-        disogsMasterRelease = await searchMasterRelease(title).then(data => data);
-        if (disogsMasterRelease) {
-            coverArtUrl = disogsMasterRelease.cover_image; 
-        } 
-    }
-
-    // Use Spotify if no results from MusicBrainz or Discogs:
-    if (!musicBrainzReleaseGroup && !disogsMasterRelease) {
-        const token = await getToken().then(data => data);
-        spotifyAlbum = await searchForAlbum(token, title).then(data => data.albums.items[0]);
-        if (spotifyAlbum) {
-            coverArtUrl = spotifyAlbum.images[0].url;
-        }
-    }
-
-    return coverArtUrl;
+    let imageUrl;
+    const token = await getAccessToken().then(response => response.access_token);
+    const albumData = await searchForAlbum(token, title);
+    const albums = albumData.albums;
+    albums.total > 0 ? imageUrl = albums.items[0].images[0].url : imageUrl = null;
+    return imageUrl;
 }
 
 init();
